@@ -41,4 +41,26 @@ export const api = {
   smqMatches: (name, params) => request(`/smqs/${encodeURIComponent(name)}/matches`, { params }),
   listAudit: (params) => request('/audit', { params }),
   verifyAudit: () => request('/audit/verify', { method: 'POST' }),
+  // Studies
+  listStudies: (params) => request('/studies', { params }),
+  createStudy: (body) => request('/studies', { method: 'POST', body }),
+  getStudy: (id) => request(`/studies/${id}`),
+  updateStudy: (id, body) => request(`/studies/${id}`, { method: 'PATCH', body }),
+  // Batch upload (uses fetch directly for multipart)
+  batchUpload: (formData) => {
+    return fetch(`${BASE}/batch/upload`, { method: 'POST', body: formData })
+      .then(async res => {
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : null;
+        if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+        return data;
+      });
+  },
+  // E2B export URL (used as href for download)
+  e2bUrl: (recordId) => `${BASE}/records/${recordId}/e2b`,
+  e2bBulk: (record_ids) => request('/records/e2b-export', { method: 'POST', body: { record_ids } }),
+  // KPI
+  getKpis: (params) => request('/kpis', { params }),
+  // SMQ report
+  smqReport: (name, params) => request(`/smqs/${encodeURIComponent(name)}/report`, { params }),
 };
